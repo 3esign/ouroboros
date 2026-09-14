@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OUROBOROS ($OURO) // The Perpetual On-Chain Flywheel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+  <script src="minisol.js?v=1"></script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: #030806;
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .neon-gold {
+      text-shadow: 0 0 12px rgba(234, 179, 8, 0.7), 0 0 28px rgba(234, 179, 8, 0.4);
+    }
+    .neon-green {
+      text-shadow: 0 0 12px rgba(16, 185, 129, 0.8), 0 0 30px rgba(16, 185, 129, 0.45);
+    }
+    .neon-border {
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.05);
+    }
+    .gold-border {
+      box-shadow: 0 0 25px rgba(234, 179, 8, 0.25), inset 0 0 15px rgba(234, 179, 8, 0.05);
+    }
+    .scanline {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(0, 255, 100, 0.015), rgba(0, 0, 0, 0.01), rgba(255, 255, 255, 0.015));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-slow {
+      animation: spin-slow 28s linear infinite;
+    }
+    @keyframes spin-reverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    .spin-reverse {
+      animation: spin-reverse 18s linear infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+    .pulse-glow {
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #030806; }
+    ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 2px; }
+  </style>
+</head>
+<body class="relative pb-24 md:pb-12 text-slate-200 selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- Scanlines & Background Grid -->
+  <div class="fixed inset-0 scanline z-40 pointer-events-none"></div>
+  <div class="fixed inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(rgba(16,185,129,0.4) 1px, transparent 1px); background-size: 28px 28px;"></div>
+  <div class="fixed -top-40 -left-40 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed -bottom-40 -right-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div id="main-container" class="max-w-4xl mx-auto px-3 sm:px-6 pt-3 sm:pt-6 relative z-10">
+
+    <!-- Top Navigation Header -->
+    <header class="border border-emerald-500/30 bg-slate-950/85 backdrop-blur-md rounded-2xl p-3 sm:p-4 mb-5 neon-border">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="relative w-12 h-12 rounded-xl border-2 border-amber-400/80 overflow-hidden bg-emerald-950/40 flex-shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.4)]">
+            <img src="logo.jpg" alt="OUROBOROS" class="w-full h-full object-cover">
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-white font-black text-lg sm:text-xl tracking-wider uppercase">
+                OURO<span class="text-amber-400 neon-gold">BOROS</span>
+              </h1>
+              <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-bold tracking-wider uppercase">
+                $OURO
+              </span>
+              <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-950/70 border border-amber-500/50 text-amber-300 font-bold tracking-wider uppercase flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> 100% On-Chain Flywheel
+              </span>
+            </div>
+            <p class="text-[10px] sm:text-xs text-emerald-400/90 tracking-wide mt-0.5">
+              THE ETERNAL LOOP // BOT DUMPS FUEL PERMANENT BURN
+            </p>
+          </div>
+        </div>
+
+        <!-- Links & Controls -->
+        <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-2 flex-wrap">
+          <a id="pump-link" href="https://pump.fun" target="_blank" class="bg-gradient-to-r from-amber-400 to-emerald-400 hover:from-amber-300 hover:to-emerald-300 text-slate-950 font-black text-xs uppercase tracking-wider px-3 py-2 rounded-xl transition shadow-[0_0_15px_rgba(234,179,8,0.4)] flex items-center gap-1.5 active:scale-95">
+            <span>💊</span> <span>Pump.fun</span>
+          </a>
+
+          <a href="https://t.me/rchetx" target="_blank" class="bg-slate-900/90 border border-slate-700 hover:border-emerald-400 text-xs text-white font-mono px-3 py-2 rounded-xl transition active:scale-95 flex items-center gap-1.5">
+            <span>✈️</span> <span class="hidden sm:inline">Telegram</span>
+          </a>
+
+          <a id="x-post-link" href="https://x.com/SonyxEth" target="_blank" class="bg-slate-900/90 border border-slate-700 hover:border-amber-400 text-xs text-white font-mono px-3 py-2 rounded-xl transition active:scale-95 flex items-center gap-1.5">
+            <span>𝕏</span> <span class="hidden sm:inline">Announce</span>
+          </a>
+
+          <button id="wallet-btn" onclick="toggleWallet()" class="bg-emerald-950/80 border border-emerald-500/60 hover:border-emerald-400 text-xs font-mono px-3 py-2 rounded-xl text-emerald-300 flex items-center gap-1.5 active:scale-95">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="wallet-label">Connect</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Hero & Interactive Visual Flywheel -->
+    <section class="border border-emerald-500/30 bg-slate-950/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 mb-5 neon-border relative overflow-hidden">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        
+        <!-- Left Column: The Narrative -->
+        <div class="md:col-span-7 space-y-3">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-bold tracking-wide uppercase">
+            <span>⚡</span> Asymmetric Game Theory Engine
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">
+            Most tokens feed sniper bots.<br>
+            <span class="text-emerald-400 neon-green">$OURO feeds ON them.</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+            Every buy, sell, and sniper exit triggers a hardcoded <strong>10,000 bps Creator Fee Split</strong>. 
+            <strong>67%</strong> is funneled directly into an autonomous, unkeyable Program PDA. 
+            The PDA executes Pump CPI <code class="text-amber-300 bg-slate-900 px-1.5 py-0.5 rounded">buy_v2</code>, 
+            eats circulating supply directly off the bonding curve, and incinerates the tokens forever.
+          </p>
+
+          <div class="pt-2 flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2 py-1 rounded bg-slate-900 border border-emerald-500/30 text-emerald-300">
+              ✓ 0% Dev Allocation
+            </span>
+            <span class="px-2 py-1 rounded bg-slate-900 border border-amber-500/30 text-amber-300">
+              ✓ 67% PDA Buyback & Burn
+            </span>
+            <span class="px-2 py-1 rounded bg-slate-900 border border-teal-500/30 text-teal-300">
+              ✓ 33% Verified Creator Ops
+            </span>
+            <span class="px-2 py-1 rounded bg-slate-900 border border-purple-500/30 text-purple-300">
+              ✓ $x · y = k Floor Ratchet
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Flywheel Animation -->
+        <div class="md:col-span-5 flex flex-col items-center justify-center relative">
+          <div class="relative w-52 h-52 sm:w-60 sm:h-60 flex items-center justify-center">
+            
+            <!-- Outer Ring (Gold/Amber) -->
+            <div class="absolute inset-0 rounded-full border border-dashed border-amber-400/40 spin-slow"></div>
+            
+            <!-- Mid Ring (Emerald Green) -->
+            <div class="absolute inset-2 rounded-full border-2 border-emerald-500/50 spin-reverse"></div>
+            
+            <!-- Core Emblem -->
+            <div class="relative w-36 h-36 rounded-full overflow-hidden border-2 border-amber-400/90 shadow-[0_0_30px_rgba(16,185,129,0.5)] pulse-glow bg-slate-950">
+              <img src="logo.jpg" alt="Ouroboros Ring" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Orbiting Particle Badges -->
+            <div class="absolute -top-1 bg-amber-950/90 border border-amber-400/80 text-amber-300 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+              1. Bot Dump
+            </div>
+            <div class="absolute -bottom-1 bg-emerald-950/90 border border-emerald-400/80 text-emerald-300 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+              3. Permanent Burn
+            </div>
+            <div class="absolute -right-2 bg-teal-950/90 border border-teal-400/80 text-teal-300 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+              2. 67% Vault
+            </div>
+          </div>
+          <div class="mt-3 text-center">
+            <span class="text-[10px] text-slate-400 tracking-wider font-mono">
+              THE CLOSED MATHEMATICAL LOOP
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Live Telemetry / Vault Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      
+      <!-- Metric 1: Vault SOL -->
+      <div class="border border-amber-500/30 bg-slate-950/80 rounded-xl p-3 sm:p-4 gold-border text-center">
+        <span class="text-[10px] text-amber-400/80 uppercase font-bold tracking-wider block mb-1">
+          Vault Balance
+        </span>
+        <div class="text-xl sm:text-2xl font-black text-white font-mono flex items-center justify-center gap-1">
+          <span id="vault-sol">0.00</span> <span class="text-xs text-amber-400">SOL</span>
+        </div>
+        <span class="text-[9px] text-slate-400 block mt-1">Pending Buyback</span>
+      </div>
+
+      <!-- Metric 2: Burned Supply -->
+      <div class="border border-emerald-500/30 bg-slate-950/80 rounded-xl p-3 sm:p-4 neon-border text-center">
+        <span class="text-[10px] text-emerald-400/80 uppercase font-bold tracking-wider block mb-1">
+          Burned Supply
+        </span>
+        <div class="text-xl sm:text-2xl font-black text-white font-mono flex items-center justify-center gap-1">
+          <span id="burned-tokens">0</span> <span class="text-xs text-emerald-400">OURO</span>
+        </div>
+        <span class="text-[9px] text-slate-400 block mt-1">Incinerated Forever</span>
+      </div>
+
+      <!-- Metric 3: Curve Progress -->
+      <div class="border border-teal-500/30 bg-slate-950/80 rounded-xl p-3 sm:p-4 text-center">
+        <span class="text-[10px] text-teal-400/80 uppercase font-bold tracking-wider block mb-1">
+          Bonding Curve
+        </span>
+        <div class="text-xl sm:text-2xl font-black text-white font-mono flex items-center justify-center gap-1">
+          <span id="curve-progress">0.0%</span>
+        </div>
+        <span class="text-[9px] text-slate-400 block mt-1">Raydium Graduation</span>
+      </div>
+
+      <!-- Metric 4: Floor Ratchet -->
+      <div class="border border-purple-500/30 bg-slate-950/80 rounded-xl p-3 sm:p-4 text-center">
+        <span class="text-[10px] text-purple-400/80 uppercase font-bold tracking-wider block mb-1">
+          Floor Ratchet
+        </span>
+        <div class="text-xl sm:text-2xl font-black text-white font-mono flex items-center justify-center gap-1">
+          <span id="floor-ratchet">+0.0%</span>
+        </div>
+        <span class="text-[9px] text-slate-400 block mt-1">Mathematical Floor</span>
+      </div>
+
+    </div>
+
+    <!-- The Permissionless Crank Action Card -->
+    <section class="border border-amber-500/40 bg-gradient-to-b from-slate-950/95 to-amber-950/20 backdrop-blur-md rounded-2xl p-5 mb-5 gold-border">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        
+        <div class="space-y-1 text-center sm:text-left">
+          <div class="flex items-center justify-center sm:justify-start gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+            <h3 class="text-lg font-black text-white tracking-wide uppercase">
+              Ignite The Loop Crank
+            </h3>
+          </div>
+          <p class="text-xs text-slate-300 max-w-lg">
+            Anyone can trigger the on-chain crank. When called, the Vault PDA executes Pump CPI 
+            <code class="text-amber-300">buy_v2</code> with all accumulated fee revenue and permanently burns the received tokens.
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center sm:items-end w-full sm:w-auto gap-2">
+          <button id="crank-btn" onclick="triggerCrank()" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider px-6 py-3 rounded-xl transition shadow-[0_0_20px_rgba(234,179,8,0.5)] active:scale-95 flex items-center justify-center gap-2">
+            <span>🔥</span> <span>EXECUTE CRANK NOW</span>
+          </button>
+          <span class="text-[10px] text-amber-300/80 font-mono">
+            Permissionless · Automated Keeper Active
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Real-Time Activity Terminal -->
+      <div class="mt-4 pt-4 border-t border-slate-800">
+        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2">
+          <span>⚡ LIVE ON-CHAIN EVENT STREAM</span>
+          <span id="crank-status" class="text-emerald-400">IDLE // WATCHING PDA</span>
+        </div>
+        <div id="terminal-feed" class="bg-black/80 rounded-lg p-3 font-mono text-xs text-emerald-400/90 h-28 overflow-y-auto border border-emerald-950 space-y-1">
+          <p class="text-slate-500">[System] Initializing Ouroboros event listener...</p>
+          <p class="text-slate-500">[System] Connecting to Solana cluster...</p>
+          <p class="text-emerald-400">[Engine] Vault PDA verified. Awaiting genesis token pairing.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tokenomics & Contract Details -->
+    <section class="border border-emerald-500/30 bg-slate-950/80 rounded-2xl p-5 mb-5 neon-border space-y-4">
+      <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+        <span>📜</span> On-Chain Parameters & Contract Details
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+          <span class="text-slate-400 text-[10px] uppercase block">Token Mint ($OURO)</span>
+          <div class="flex items-center justify-between">
+            <span id="token-ca" class="text-white select-all font-semibold truncate mr-2">TBD (Genesis Pre-Launch)</span>
+            <button onclick="copyText('token-ca')" class="text-slate-400 hover:text-emerald-400 text-[10px]">COPY</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+          <span class="text-slate-400 text-[10px] uppercase block">Vault PDA (Black Hole)</span>
+          <div class="flex items-center justify-between">
+            <span id="vault-pda" class="text-amber-400 select-all font-semibold truncate mr-2">TBD (Deriving from Mint)</span>
+            <button onclick="copyText('vault-pda')" class="text-slate-400 hover:text-amber-400 text-[10px]">COPY</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+          <span class="text-slate-400 text-[10px] uppercase block">Creator Fee Split</span>
+          <span class="text-emerald-300 font-bold">10,000 bps (67% Vault / 33% Semir Wallet)</span>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+          <span class="text-slate-400 text-[10px] uppercase block">Fee Sharing Authority</span>
+          <span class="text-red-400 font-bold">REVOKED (Permanently Immutable)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-500 font-mono space-y-1 pt-2">
+      <p>OUROBOROS ($OURO) // Autonomous Solana Ecosystem Engine</p>
+      <p>Built with zero dev allocation. Governed 100% on-chain by mathematics.</p>
+    </footer>
+
+  </div>
+
+  <script src="ouro.js"></script>
+</body>
+</html>
