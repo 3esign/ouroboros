@@ -1,7 +1,7 @@
 // OUROBOROS ($OURO) Client Logic
 const CONFIG = {
-  mint: "TBD_GENESIS_MINT",
-  vault: "TBD_VAULT_PDA",
+  mint: "GyNLsJ8dBoymAxiPWcKFUmZhGzNpGhLT6R1DZAbi9Res",
+  vault: "Dxqn8k91znurFUAiF8KBVpBGEVx22vpcP1AFvPA4L5AH",
   semirWallet: "HXFDaHyZ3i477z1BakiTWZg9UQN8rcreruuv9ifC1HvM",
   rpc: "https://api.tatum.io/v3/blockchain/node/solana-mainnet",
   backupRpc: "https://solana-rpc.publicnode.com"
